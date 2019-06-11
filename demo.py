@@ -3,9 +3,25 @@ import cv2
 
 from facerec import FaceRecognition
 
-def main():
+import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Train nn for seam carving detection.')
+    parser.add_argument("--dist-thresh", action='store', type=float, help="Distance threshold for classification.", default=0.6)
+    parser.add_argument("--det", action='store', type=str, help="Detection context (cpu, gpu).", choices=['cpu', 'gpu'], default='cpu')
+    parser.add_argument("--det-thresh", action='store', type=str, help="Detection thresholds (default: '0.6,0.7,0.8').", default='0.6,0.7,0.8')
+    parser.add_argument("--det-factor", action='store', type=float, help="Detection pyramid scaling factor (default: 0.709).", default=0.709)
+    parser.add_argument("--det-minsize", action='store', type=int, help="Detection minimum size (default: 20).", default=20)
+
+    return parser.parse_args()
+
+def main(dist_thresh, det, det_thresh, det_factor, det_minsize):
+    # Param parsing
+    cpudet = True if det == 'cpu' else False
+    det_thresh = [float(t) for t in det_thresh.split(',')]
+
     # Face detection and recognition class
-    facerec = FaceRecognition(cpudet=False)
+    facerec = FaceRecognition(dist_threshold=dist_thresh, cpudet=cpudet, det_threshold=det_thresh, det_factor=det_factor, det_minsize=det_minsize)
     
 
     print("Starting capture")
@@ -64,4 +80,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args.dist_thresh, args.det, args.det_thresh, args.det_factor, args.det_minsize)

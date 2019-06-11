@@ -535,7 +535,7 @@ class MtcnnDetector(object):
 
 
 class MTCNNDetector:
-    def __init__(self, shape=112, cpu=False, threshold=[0.6,0.7,0.8], factor=0.709):
+    def __init__(self, shape=112, cpu=False, threshold=[0.6, 0.7, 0.8], factor=0.709, minsize=20):
         ctx = mx.cpu() if cpu else mx.gpu()
         model_path,_ = os.path.split(os.path.realpath(__file__))
         model_path = os.path.join(model_path, 'models/mtcnn')
@@ -543,7 +543,7 @@ class MTCNNDetector:
         self.detector = MtcnnDetector(model_folder=model_path, ctx=ctx, num_worker=7, accurate_landmark=False, threshold=threshold, factor=factor)
         # self.kp_keys = ['left_eye', 'right_eye', 'nose', 'mouth_left', 'mouth_right']
 
-        self.minsize = 20 # minimum size of face
+        self.minsize = minsize # minimum size of face
         self.threshold = threshold
         self.factor = factor
 

@@ -852,20 +852,20 @@ def imresample(img, sz):
 
 
 class MTCNNDetector:
-    def __init__(self, shape=112, cpu=False, threshold=[0.6,0.7,0.8]):
+    def __init__(self, shape=112, cpu=False, threshold=[0.6,0.7,0.8], factor=0.709, minsize=20):
         with tf.Graph().as_default():
             if cpu:
                 config = tf.ConfigProto(device_count = {'GPU': 0})
                 sess = tf.Session(config=config)
             else:
-                gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=.7)
+                gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=.5)
                 sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
             with sess.as_default():
                 self.pnet, self.rnet, self.onet = create_mtcnn(sess, None)
 
-        self.minsize = 20 # minimum size of face
-        self.threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
-        self.factor = 0.709 # scale factor
+        self.minsize = minsize # minimum size of face
+        self.threshold = threshold  # three steps's threshold
+        self.factor = factor # scale factor
 
 
         if isinstance(shape, int):

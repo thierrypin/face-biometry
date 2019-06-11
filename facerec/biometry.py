@@ -29,11 +29,11 @@ def load_img(path):
 
 
 class NearestNeighbor:
-    def __init__(self, threshold=.6, normalize=False, verbose=False, metric='cosine'):
+    def __init__(self, threshold=.6, norm=False, verbose=False, metric='cosine'):
         self.threshold = threshold
         self.x = None
         self.y = None
-        self.normalize = normalize
+        self.norm = norm
         self.verbose = verbose
         
         if metric == 'euclidean':
@@ -42,14 +42,14 @@ class NearestNeighbor:
             self.metric = cosine_distances
     
     def fit(self, x, y):
-        if self.normalize:
+        if self.norm:
             self.x = normalize(x)
         else:
             self.x = x
         self.y = y
     
     def predict(self, x_):
-        if self.normalize:
+        if self.norm:
             dists = self.metric(normalize(x_), self.x)
         else:
             dists = self.metric(x_, self.x)
@@ -68,11 +68,10 @@ class NearestNeighbor:
             print(list(zip(preds, min_dist)))
 
         return np.array(preds), min_dist
-    
-    
+
 
 class Arcface:
-    def __init__(self, model_name='mobilenet', batch_size=128):
+    def __init__(self, model_name='mobilenet', batch_size=32):
         filepath, _ = os.path.split(os.path.realpath(__file__))
         model_path = os.path.join(filepath, 'models/arc_%s' % model_name.lower())
 
@@ -80,6 +79,7 @@ class Arcface:
         self.batch_size = batch_size
         self.ctx = mx.gpu()
         self.model = gluon.nn.SymbolBlock.imports(os.path.join(model_path, "model-symbol.json"), ['data'], os.path.join(model_path, "model-0000.params"), ctx=self.ctx)
+        self.model.forward(nd.zeros((batch_size, 3, 112, 112), ctx=self.ctx))
 
     def predict(self, imgs):
 
@@ -104,10 +104,10 @@ class Arcface:
 
 
 class FaceRecognition:
-    def __init__(self, dataset=None, labels=None, threshold=.6, cpudet=False):
+    def __init__(self, dataset=None, labels=None, dist_threshold=.6, cpudet=True, det_threshold=[0.6, 0.7, 0.8], det_factor=0.709, det_minsize=20):
         size = 112
         self.encoder = Arcface('mobilenet')
-        self.detector = MTCNNDetector(shape=size, cpu=cpudet)
+        self.detector = MTCNNDetector(shape=size, cpu=cpudet, threshold=det_threshold, factor=det_factor, minsize=det_minsize)
 
         self.known_encodings = []
         self.labels = []
@@ -139,7 +139,7 @@ class FaceRecognition:
             self.labels = labels
 
         
-        self.clf = NearestNeighbor(verbose=False, normalize=True, threshold=threshold, metric='cosine')
+        self.clf = NearestNeighbor(verbose=False, norm=True, threshold=dist_threshold, metric='cosine')
         self.clf.fit(self.known_encodings, self.labels)
     
     def read_folder(self, folder):
@@ -182,7 +182,7 @@ class FaceRecognition:
             faces = np.array(faces)
             encodings = self.encoder.predict(faces)
             
-            return bbs[0], faces[0], encodings[0]
+            return bbs, faces, encodings
         else:
             return None
 
