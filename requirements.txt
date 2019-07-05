@@ -1,6 +1,6 @@
-numpy
-sklearn
-skimage
-opencv-python
-tensorflow
 mxnet
+numpy
+opencv-python
+scikit-image
+scikit-learn
+tensorflow-gpu
