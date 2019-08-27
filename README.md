@@ -26,11 +26,11 @@ This code requires the following packages:
 - opencv-python
 - scikit-image
 - scikit-learn
-- tensorflow
+- tensorflow (optional)
 
 Go to https://mxnet.apache.org/versions/master/install/index.html to find the adequate MXNet installation.
 
-Tensorflow is optional, since detection can also be done with MXNet (though it defaults to TF). Also, you may consider installing tensorflow-gpu if you have Cuda available.
+Tensorflow is optional, since detection defaults to MXNet.
 
 ## Running the demo
 

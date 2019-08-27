@@ -12,17 +12,6 @@ from mxnet import gluon
 import mxnet as mx
 from mxnet import nd
 
-
-# detection and alignment
-# from .align import AlignDlib
-
-detection_backend = 'tf'
-if detection_backend == 'mxnet':
-    from .mtcnn_detector import MTCNNDetector
-else:
-    from .detect_face import MTCNNDetector
-
-
 def load_img(path):
     img = cv2.imread(path)
     return img
@@ -104,7 +93,13 @@ class Arcface:
 
 
 class FaceRecognition:
-    def __init__(self, dataset=None, labels=None, dist_threshold=.6, cpudet=True, det_threshold=[0.6, 0.7, 0.8], det_factor=0.709, det_minsize=20):
+    def __init__(self, dataset=None, labels=None, dist_threshold=.6, cpudet=True, det_threshold=[0.6, 0.7, 0.8], det_factor=0.709, det_minsize=20, detection_backend='mxnet'):
+        # Choose which implementation
+        if detection_backend == 'mxnet':
+            from .mxnet_detector import MTCNNDetector
+        else:
+            from .tf_detector import MTCNNDetector
+        
         size = 112
         self.encoder = Arcface('mobilenet')
         self.detector = MTCNNDetector(shape=size, cpu=cpudet, threshold=det_threshold, factor=det_factor, minsize=det_minsize)
