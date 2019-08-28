@@ -66,7 +66,7 @@ def main(dist_thresh, det, det_thresh, det_factor, det_minsize):
                 cv2.rectangle(frame, (left, top), (right, bottom), color, 2)
                 font = cv2.FONT_HERSHEY_DUPLEX
                 cv2.putText(frame, name+" %0.2f"%dist, (left, bottom +20), font, 1.0, color, 1)
-                cv2.putText(frame, "%.1f"%fps, (20, 20), font, 0.6, color, 1)
+                cv2.putText(frame, "%.1f"%fps, (20, 20), font, 0.6, (0, 0, 255), 1)
             
             # Show
             cv2.imshow('Faces', frame)
