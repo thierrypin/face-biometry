@@ -3,7 +3,7 @@
 
 This project contains no novelty in terms of computer vision techniques, but it integrates all the face biometry steps.
 
-- Face detection and alignment is performed by MTCNN, with a choice of implementation from Tensorflow or MXNet. It runs in real time on CPU or GPU.
+- Face detection and alignment is performed by MTCNN, with a choice of implementation from Tensorflow or MXNet. It runs in real time on both CPU and GPU.
 
 - Feature extraction is performed by ArcFace over Mobilenet on MXNet. The vector length is 128.
 
@@ -30,7 +30,7 @@ This code requires the following packages:
 
 Go to https://mxnet.apache.org/versions/master/install/index.html to find the adequate MXNet installation.
 
-Tensorflow is optional, since detection defaults to MXNet.
+Tensorflow is optional, since detection defaults to MXNet. In my setup, I find that TF's implementation is a bit faster. It makes a difference if you don't have so much hardware available.
 
 ## Running the demo
 

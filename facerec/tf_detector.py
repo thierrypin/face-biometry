@@ -858,8 +858,8 @@ class MTCNNDetector:
                 config = tf.ConfigProto(device_count = {'GPU': 0})
                 sess = tf.Session(config=config)
             else:
-                gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=.5)
-                sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
+                # gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=.9)
+                sess = tf.Session(config=tf.ConfigProto(log_device_placement=False)) # gpu_options=gpu_options, 
             with sess.as_default():
                 self.pnet, self.rnet, self.onet = create_mtcnn(sess, None)
 

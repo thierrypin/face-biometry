@@ -12,6 +12,18 @@ from mxnet import gluon
 import mxnet as mx
 from mxnet import nd
 
+
+
+###########################################
+#       Choose which implementation       #
+###########################################
+
+from .mxnet_detector import MTCNNDetector
+# from .tf_detector import MTCNNDetector
+
+# # # # # # # # # # # # # # # # # # # # # #
+###########################################
+
 def load_img(path):
     img = cv2.imread(path)
     return img
@@ -60,7 +72,7 @@ class NearestNeighbor:
 
 
 class Arcface:
-    def __init__(self, model_name='mobilenet', batch_size=32):
+    def __init__(self, model_name='mobilenet', batch_size=2):
         filepath, _ = os.path.split(os.path.realpath(__file__))
         model_path = os.path.join(filepath, 'models/arc_%s' % model_name.lower())
 
@@ -93,13 +105,7 @@ class Arcface:
 
 
 class FaceRecognition:
-    def __init__(self, dataset=None, labels=None, dist_threshold=.6, cpudet=True, det_threshold=[0.6, 0.7, 0.8], det_factor=0.709, det_minsize=20, detection_backend='mxnet'):
-        # Choose which implementation
-        if detection_backend == 'mxnet':
-            from .mxnet_detector import MTCNNDetector
-        else:
-            from .tf_detector import MTCNNDetector
-        
+    def __init__(self, dataset=None, labels=None, dist_threshold=.6, cpudet=True, det_threshold=[0.6, 0.7, 0.8], det_factor=0.709, det_minsize=20):
         size = 112
         self.encoder = Arcface('mobilenet')
         self.detector = MTCNNDetector(shape=size, cpu=cpudet, threshold=det_threshold, factor=det_factor, minsize=det_minsize)
@@ -140,20 +146,29 @@ class FaceRecognition:
     def read_folder(self, folder):
         img_names = os.listdir(folder)
         # Read images
-        imgs = np.array( [load_img(os.path.join(folder, name)) for name in img_names] )
+        imgs = [load_img(os.path.join(folder, name)) for name in img_names]
         # Get labels
         self.labels = np.array( [ name.split('_')[0] for name in img_names ] )
 
         known_encodings = []
 
-        for i, img in enumerate(imgs):
-            bbs, faces = self.detector.detect(img)[0] # 1 image passed
+        dets = self.detector.detect(imgs)
+        for bbs, faces in dets:
             bb, face = bbs[0], faces[0] # Should return 1 face. If returns more, ignore the rest
 
             if face.ndim == 3:
                 face = face[np.newaxis, ...]
             
             known_encodings.append(self.encoder.predict(face))
+
+        # for img in imgs:
+        #     bbs, faces = self.detector.detect(img)[0] # 1 image passed
+        #     bb, face = bbs[0], faces[0] # Should return 1 face. If returns more, ignore the rest
+
+        #     if face.ndim == 3:
+        #         face = face[np.newaxis, ...]
+            
+        #     known_encodings.append(self.encoder.predict(face))
         
         self.known_encodings = np.vstack(known_encodings)
 

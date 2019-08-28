@@ -568,25 +568,29 @@ class MTCNNDetector:
     def detect(self, imgs):
         if not isinstance(imgs, list):
             imgs = [imgs]
-            
         output = []
         for img in imgs:
-            bbs, points = self.detector.detect_face(img)
-            img_faces = []
+            det = self.detector.detect_face(img)
+            if det:
+                bbs, points = det
+                img_faces = []
 
-            points = np.array(points, dtype=int)
-            bbs = np.array(bbs, dtype=int)[:, :4]
+                points = np.array(points, dtype=int)
+                bbs = np.array(bbs, dtype=int)[:, :4]
 
-            out_p = []
-            for bb, pts in zip(bbs, points):
-                p = np.reshape(pts, (2, 5)).T
-                out_p.append(p)
-                # print(bb)
-                # print(pts)
-                face = self.align(img, bb, p)
-                img_faces.append(face)
-            
-            output.append((bbs, img_faces))
+                out_p = []
+                for bb, pts in zip(bbs, points):
+                    p = np.reshape(pts, (2, 5)).T
+                    out_p.append(p)
+                    # print(bb)
+                    # print(pts)
+                    face = self.align(img, bb, p)
+                    img_faces.append(face)
+                
+                output.append((bbs, img_faces))
+            else:
+                output.append(([], []))
+
         
         return output
 
