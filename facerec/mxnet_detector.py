@@ -47,7 +47,7 @@ class MtcnnDetector(object):
         self.accurate_landmark = accurate_landmark
 
         # load 4 models from folder
-        models = ['det1', 'det2', 'det3','det4']
+        models = ['det1', 'det2', 'det3', 'det4']
         models = [ os.path.join(model_folder, f) for f in models]
         
         self.PNets = []

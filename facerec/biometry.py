@@ -18,8 +18,8 @@ from mxnet import nd
 #       Choose which implementation       #
 ###########################################
 
-from .mxnet_detector import MTCNNDetector
-# from .tf_detector import MTCNNDetector
+# from .mxnet_detector import MTCNNDetector
+from .tf_detector import MTCNNDetector
 
 # # # # # # # # # # # # # # # # # # # # # #
 ###########################################
@@ -72,13 +72,16 @@ class NearestNeighbor:
 
 
 class Arcface:
-    def __init__(self, model_name='mobilenet', batch_size=2):
+    def __init__(self, model_name='mobilenet', batch_size=2, cpu=True):
         filepath, _ = os.path.split(os.path.realpath(__file__))
         model_path = os.path.join(filepath, 'models/arc_%s' % model_name.lower())
+        if cpu:
+            self.ctx = mx.cpu()
+        else:
+            self.ctx = mx.gpu()
 
         self.model_name = model_name
         self.batch_size = batch_size
-        self.ctx = mx.gpu()
         self.model = gluon.nn.SymbolBlock.imports(os.path.join(model_path, "model-symbol.json"), ['data'], os.path.join(model_path, "model-0000.params"), ctx=self.ctx)
         self.model.forward(nd.zeros((batch_size, 3, 112, 112), ctx=self.ctx))
 
@@ -105,9 +108,9 @@ class Arcface:
 
 
 class FaceRecognition:
-    def __init__(self, dataset=None, labels=None, dist_threshold=.6, cpudet=True, det_threshold=[0.6, 0.7, 0.8], det_factor=0.709, det_minsize=20):
+    def __init__(self, dataset=None, labels=None, dist_threshold=.6, cpudet=True, det_threshold=[0.6, 0.7, 0.8], det_factor=0.709, det_minsize=20, cpufeat=True):
         size = 112
-        self.encoder = Arcface('mobilenet')
+        self.encoder = Arcface('mobilenet', cpu=cpufeat)
         self.detector = MTCNNDetector(shape=size, cpu=cpudet, threshold=det_threshold, factor=det_factor, minsize=det_minsize)
 
         self.known_encodings = []
